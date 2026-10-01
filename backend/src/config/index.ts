@@ -10,6 +10,8 @@ for (const key of required) {
   }
 }
 
+console.log('Config', process.env.CHAOS)
+
 export const config = {
   env,
   port: Number(process.env.PORT ?? 3000),

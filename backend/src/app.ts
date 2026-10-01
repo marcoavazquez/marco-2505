@@ -14,9 +14,10 @@ app.use(cors());
 app.use(express.json());
 if (config.env !== 'test') app.use(morgan('dev'));
 
+app.use(checkHealth);
+
 app.use('/', routes);
 
-app.use(checkHealth);
 app.use(notFound);
 app.use(errorHandler);
 
