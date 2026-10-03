@@ -14,7 +14,7 @@ export const errorHandler: ErrorRequestHandler = (err, req: Request, res: Respon
 
   if (statusCode >= 500) console.error(err);
 
-  const body = req.body
+  const body = req.body ?? {};
 
   res.status(statusCode).json(buildReponse({
     id: `payment-${body.player_id ?? 'unknown'}-${Date.now()}`,

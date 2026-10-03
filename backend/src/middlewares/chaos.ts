@@ -5,7 +5,7 @@ import { AppError } from '../utils/app-error.js';
 export const checkHealth = (req: Request, res: Response, next: NextFunction) => {
   console.log('config', config)
   if (config.chaos) {
-    next(new AppError('Service unavailable', 503));
+    return next(new AppError('Service unavailable', 503));
   }
   next();
 }
