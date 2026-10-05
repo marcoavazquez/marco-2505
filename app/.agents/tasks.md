@@ -1,3 +1,5 @@
+[] Create the inputs components
+[] Refactor the auth forms to use the new inputs components
 [] Fix the register service
 [] Create the test for the register form component
 [] Create the test for the register service

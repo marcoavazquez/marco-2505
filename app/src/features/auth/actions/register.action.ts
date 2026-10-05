@@ -8,14 +8,15 @@ export const registerAction = async (
   formData: FormData
 ): Promise<RegisterFormState> => {
 
-  const { data, error, success } = RegisterDto.safeParse(Object.fromEntries(formData.entries()));
+  const { data, error, success } = RegisterDto.safeParse(
+    Object.fromEntries(formData.entries())
+  );
 
   if (!success) {
     return {
       ...prevState,
-      status: "error",
-      message: "Error al registrarse",
-      errors: z.flattenError(error).fieldErrors as Record<string, string[]>,
+      success: false,
+      errors: z.flattenError(error).fieldErrors
     };
   }
 
@@ -23,19 +24,23 @@ export const registerAction = async (
     const response = await authService.register(data);
 
     if (!response.success) {
+
       return {
-        errors: {
-          general: response.message || "Error al registrarse",
-        },
+        ...prevState,
+        success: false,
+        errors: response.errors,
       };
     }
 
-    return { success: true };
+    return {
+      data,
+      success: true,
+    };
   } catch {
     return {
-      errors: {
-        general: "Ocurrió un error al registrar la cuenta",
-      },
+      ...prevState,
+      success: false,
+      errors: { general: ["Ocurrió un error al registrar la cuenta"] },
     };
   }
-}
+};

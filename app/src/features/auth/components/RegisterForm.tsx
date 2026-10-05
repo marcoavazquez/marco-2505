@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { registerAction } from "../actions/login.action";
+import { Button, EmailInput, PasswordInput, TextInput } from "@/components/ui";
+import { registerAction } from "../actions/register.action";
 import { RegisterFormState } from "../types";
 
 const initialState: RegisterFormState = {
@@ -12,8 +13,7 @@ const initialState: RegisterFormState = {
     password: "",
     confirmPassword: "",
   },
-  status: "idle",
-  message: "",
+  success: false,
   errors: {}
 };
 
@@ -22,91 +22,51 @@ export function RegisterForm() {
   const [state, formAction, isPending] = useActionState(registerAction, initialState);
 
   return (
-    <form action={formAction} className="space-y-4">
-      {state.errors?.general && (
-        <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-          {state.errors.general}
-        </div>
-      )}
+    <form action={formAction} className="space-y-4" noValidate>
 
-      <div>
-        <label htmlFor="fullName" className="block text-sm font-medium mb-1">
-          Nombre completo
-        </label>
-        <input
-          id="fullName"
-          name="fullName"
-          type="text"
-          autoComplete="name"
-          disabled={isPending}
-          className="w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-1 focus:ring-black"
-        />
-        {state.errors?.fullName && (
-          <p className="mt-1 text-xs text-red-600">{state.errors.fullName}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Correo electrónico
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          disabled={isPending}
-          className="w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-1 focus:ring-black"
-        />
-        {state.errors?.email && (
-          <p className="mt-1 text-xs text-red-600">{state.errors.email}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium mb-1">
-          Contraseña
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          disabled={isPending}
-          className="w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-1 focus:ring-black"
-        />
-        {state.errors?.password && (
-          <p className="mt-1 text-xs text-red-600">{state.errors.password}</p>
-        )}
-      </div>
-
-      <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-medium mb-1"
-        >
-          Confirmar contraseña
-        </label>
-        <input
-          id="confirmPassword"
-          name="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          disabled={isPending}
-          className="w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-1 focus:ring-black"
-        />
-        {state.errors?.confirmPassword && (
-          <p className="mt-1 text-xs text-red-600">{state.errors.confirmPassword}</p>
-        )}
-      </div>
-
-      <button
-        type="submit"
+      <TextInput
+        id="fullName"
+        name="fullName"
+        label="Nombre completo"
+        autoComplete="name"
         disabled={isPending}
-        className="w-full py-2 px-4 bg-black text-white text-sm font-medium rounded-md hover:bg-zinc-800 disabled:opacity-50"
-      >
+        helperText={state.errors?.fullName?.join(", ")}
+        hasError={Boolean(state.errors?.fullName)}
+      />
+
+      <EmailInput
+        id="email"
+        name="email"
+        label="Correo electrónico"
+        autoComplete="email"
+        disabled={isPending}
+        helperText={state.errors?.email?.join(", ")}
+        hasError={Boolean(state.errors?.email)}
+      />
+
+      <PasswordInput
+        id="password"
+        name="password"
+        label="Contraseña"
+        autoComplete="new-password"
+        disabled={isPending}
+        helperText={state.errors?.password?.join(", ")}
+        hasError={Boolean(state.errors?.password)}
+      />
+
+      <PasswordInput
+        id="confirmPassword"
+        name="confirmPassword"
+        label="Confirmar contraseña"
+        autoComplete="new-password"
+        disabled={isPending}
+        helperText={state.errors?.confirmPassword?.join(", ")}
+        hasError={Boolean(state.errors?.confirmPassword)}
+      />
+
+      <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Registrando..." : "Registrarse"}
-      </button>
+      </Button>
 
       <div className="text-center text-sm">
         <Link href="/login" className="text-blue-600 hover:underline">

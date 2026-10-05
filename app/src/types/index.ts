@@ -1,8 +1,12 @@
-export type Status = "success" | "error" | "idle";
-
 export type FormState<T> = {
   data: T;
-  status: Status;
-  message: string;
+  success: boolean;
   errors?: Record<string, string[]>;
+}
+
+export interface Response<T> {
+  data: T | null;
+  success: boolean
+  message: string
+  errors?: Record<string, string[]>
 }

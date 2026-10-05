@@ -13,8 +13,7 @@ export const loginAction = async (
   if (!success) {
     return {
       ...prevState,
-      status: "error",
-      message: "Error al iniciar sesión",
+      success: false,
       errors: z.flattenError(error).fieldErrors as Record<string, string[]>,
     }
   }
@@ -25,21 +24,18 @@ export const loginAction = async (
     if (!response.success) {
       return {
         ...prevState,
-        status: "error",
-        message: response.message || "Credenciales incorrectas",
+        success: false,
       };
     }
 
     return {
       data,
-      status: "success",
-      message: response.message,
+      success: true,
     };
   } catch {
     return {
       ...prevState,
-      status: "error",
-      message: "Ocurrió un error al iniciar sesión",
+      success: false,
     };
   }
 }

@@ -1,51 +1,63 @@
+import { Response } from "@/types";
 import { LoginDto, RegisterDto } from "../dtos";
+import { userRepositoty } from "@/lib/db";
+import { User } from "@/types/users";
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  fullName: string;
-}
 
-export interface AuthResponse {
-  success: boolean;
-  message?: string;
-  user?: AuthUser;
-}
+export const SESSION_KEY = "sisu.auth.session";
 
-/**
- * Authentication service handling login and register operations.
- */
 export const authService = {
+  async login(data: LoginDto): Promise<Response<User>> {
 
-  async login(data: LoginDto): Promise<AuthResponse> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    const user = userRepositoty.find(data.email)
+
+    if (!user) {
+      return {
+        success: false,
+        message: "Usuario no econtrado",
+        errors: {
+          email: ["Usuario no econtrado"]
+        },
+        data: null
+      }
+    }
 
     return {
       success: true,
       message: "¡Bienvenido de nuevo!",
-      user: {
-        id: "usr_101",
-        email: data.user,
-        fullName: data.user.split("@")[0],
-      },
+      data: user,
     };
   },
 
-  async register(data: RegisterDto): Promise<AuthResponse> {
-
-    // Simulate async API network latency
+  async register(data: RegisterDto): Promise<Response<User>> {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const newUser: AuthUser = {
+    const exists = userRepositoty.find(data.email)
+
+    if (exists) {
+      return {
+        success: false,
+        message: "Ya existe una cuenta registrada con ese correo",
+        errors: {
+          email: ["Ya existe una cuenta registrada con ese correo"]
+        },
+        data: null
+      }
+    }
+
+    const newUser: User = {
       id: "usr_" + Math.random().toString(36).substring(2, 9),
       email: data.email,
-      fullName: data.fullName,
+      name: data.fullName,
+      createdAt: new Date().toISOString(),
     };
 
+    userRepositoty.save(newUser)
+
     return {
+      data: newUser,
       success: true,
       message: "¡Cuenta creada exitosamente!",
-      user: newUser,
     };
   },
 };
