@@ -1,15 +1,14 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { paymentSchema, type PaymentInput } from '../../src/validators/snailpay.validator.ts';
+import { validCard } from '../../src/utils/validCard.ts';
 
 describe('Snailpay Validator', () => {
   const validPaymentData: PaymentInput = {
-    cardNumber: '1234123412341234',
-    expiryDate: '12/26',
-    cvv: '543',
-    transaction_amount: 150.75,
+    transactionAmount: 150.75,
     playerId: 'player-456',
-    playerEmail: 'player@example.com'
+    playerEmail: 'player@example.com',
+    ...validCard
   };
 
   describe('paymentSchema Validator', () => {
@@ -44,11 +43,11 @@ describe('Snailpay Validator', () => {
       });
     });
 
-    describe('expiryDate validation', () => {
+    describe('expirationDate validation', () => {
       it('should accept MM/YY format', () => {
         const result = paymentSchema.safeParse({
           ...validPaymentData,
-          expiryDate: '08/29'
+          expirationDate: '08/29'
         });
         assert.equal(result.success, true);
       });
@@ -56,7 +55,7 @@ describe('Snailpay Validator', () => {
       it('should reject MM/YYYY format', () => {
         const result = paymentSchema.safeParse({
           ...validPaymentData,
-          expiryDate: '01/2032'
+          expirationDate: '01/2032'
         });
         assert.equal(result.success, false);
       });
@@ -64,7 +63,7 @@ describe('Snailpay Validator', () => {
       it('should reject MMYY format', () => {
         const result = paymentSchema.safeParse({
           ...validPaymentData,
-          expiryDate: '0125'
+          expirationDate: '0125'
         });
         assert.equal(result.success, false);
       });
@@ -72,13 +71,13 @@ describe('Snailpay Validator', () => {
       it('should reject invalid month (e.g. 00 or 13)', () => {
         const resultMonth00 = paymentSchema.safeParse({
           ...validPaymentData,
-          expiryDate: '00/28'
+          expirationDate: '00/28'
         });
         assert.equal(resultMonth00.success, false);
 
         const resultMonth13 = paymentSchema.safeParse({
           ...validPaymentData,
-          expiryDate: '13/28'
+          expirationDate: '13/28'
         });
         assert.equal(resultMonth13.success, false);
       });
@@ -86,7 +85,7 @@ describe('Snailpay Validator', () => {
       it('should reject malformed expiry date format', () => {
         const result = paymentSchema.safeParse({
           ...validPaymentData,
-          expiryDate: '2027/09'
+          expirationDate: '2027/09'
         });
         assert.equal(result.success, false);
       });
@@ -118,11 +117,11 @@ describe('Snailpay Validator', () => {
       });
     });
 
-    describe('transaction_amount validation', () => {
+    describe('transactionAmount validation', () => {
       it('should reject zero as transaction amount', () => {
         const result = paymentSchema.safeParse({
           ...validPaymentData,
-          transaction_amount: 0
+          transactionAmount: 0
         });
         assert.equal(result.success, false);
       });
@@ -130,7 +129,7 @@ describe('Snailpay Validator', () => {
       it('should reject negative transaction amount', () => {
         const result = paymentSchema.safeParse({
           ...validPaymentData,
-          transaction_amount: -25.5
+          transactionAmount: -25.5
         });
         assert.equal(result.success, false);
       });

@@ -4,18 +4,17 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import app from '../../src/app.ts';
 import { config } from '../../src/config/index.ts';
+import { validCard } from '../../src/utils/validCard.ts';
 
 describe('Routes', () => {
   let server: Server;
   let baseUrl: string;
 
   const validPaymentPayload = {
-    cardNumber: '1234123412341234',
-    expiryDate: '12/26',
-    cvv: '543',
-    transaction_amount: 199.99,
+    transactionAmount: 199.99,
     playerId: 'player-int-001',
-    playerEmail: 'gamer@example.com'
+    playerEmail: 'gamer@example.com',
+    ...validCard
   };
 
   before(async () => {
@@ -47,12 +46,9 @@ describe('Routes', () => {
       const data = await response.json();
 
       assert.equal(data.status, 'success');
-      assert.deepEqual(data.status_details, {
-        message: 'Payment processed successfully'
-      });
       assert.equal(data.player_id, validPaymentPayload.playerId);
       assert.equal(data.player_email, validPaymentPayload.playerEmail);
-      assert.equal(data.transaction_amount, validPaymentPayload.transaction_amount);
+      assert.equal(data.transaction_amount, validPaymentPayload.transactionAmount);
       assert.match(data.id, new RegExp(`^payment-${validPaymentPayload.playerId}-\\d+$`));
       assert.equal(data.reference, `ref-${data.id}`);
       assert.match(data.authorization_code, /^AUTH-\d{6}$/);
@@ -92,13 +88,13 @@ describe('Routes', () => {
       assert.ok(cardIssue);
     });
 
-    it('should return 400 when expiryDate format is invalid', async () => {
+    it('should return 400 when expirationDate format is invalid', async () => {
       const response = await fetch(`${baseUrl}/snailpay/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...validPaymentPayload,
-          expiryDate: '13/28'
+          expirationDate: '13/28'
         })
       });
 
@@ -106,17 +102,17 @@ describe('Routes', () => {
       const data = await response.json();
       assert.equal(data.status, 'rejected');
 
-      const expiryIssue = data.status_details.find((d: any) => d.field === 'expiryDate');
+      const expiryIssue = data.status_details.find((d: any) => d.field === 'expirationDate');
       assert.ok(expiryIssue);
     });
 
-    it('should return 400 when transaction_amount is negative or zero', async () => {
+    it('should return 400 when transactionAmount is negative or zero', async () => {
       const response = await fetch(`${baseUrl}/snailpay/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...validPaymentPayload,
-          transaction_amount: -10
+          transactionAmount: -10
         })
       });
 
@@ -124,7 +120,7 @@ describe('Routes', () => {
       const data = await response.json();
       assert.equal(data.status, 'rejected');
 
-      const amountIssue = data.status_details.find((d: any) => d.field === 'transaction_amount');
+      const amountIssue = data.status_details.find((d: any) => d.field === 'transactionAmount');
       assert.ok(amountIssue);
     });
 

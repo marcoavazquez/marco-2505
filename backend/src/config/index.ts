@@ -14,6 +14,6 @@ console.log('Config', process.env.CHAOS)
 
 export const config = {
   env,
-  port: Number(process.env.PORT ?? 3000),
+  port: Number(process.env.PORT ?? 8000),
   chaos: process.env.CHAOS === 'true',
 } as const;
