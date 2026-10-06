@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm";
 
 export function LoginView() {
   return (
-    <Card title="Iniciar Sesión" titleLevel="h1" titleAlign="center" className="max-w-sm">
+    <Card title="Iniciar sesión" description="Qué bueno tenerte de vuelta en la pista." titleLevel="h1" className="max-w-sm border-t-4 border-t-primary sm:p-8">
       <LoginForm />
     </Card>
   );

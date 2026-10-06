@@ -77,8 +77,9 @@ export function RegisterForm() {
       </Button>
 
       <div className="text-center text-sm">
-        <Link href="/login" className="text-blue-600 hover:underline">
-          Iniciar Sesión
+        <p className="mb-1 text-secondary">¿Ya tienes una cuenta?</p>
+        <Link href="/login" className="rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary">
+          Iniciar sesión
         </Link>
       </div>
     </form>

@@ -54,8 +54,8 @@ describe("BetsGraphics", () => {
     const { container } = render(<BetsGraphics />);
 
     expect(shapes(container, ".recharts-sector")).toEqual([
-      ["Ganado", "#22c55e"],
-      ["Perdido", "#ef4444"],
+      ["Ganado", "var(--primary)"],
+      ["Perdido", "var(--accent)"],
     ]);
   });
 });
@@ -65,10 +65,10 @@ describe("SnailsGraphic", () => {
     const { container } = render(<SnailsGraphic />);
 
     expect(shapes(container, ".recharts-rectangle")).toEqual([
-      ["Gary", "#22c55e"],
-      ["Rocky", "#d4d4d8"],
-      ["Samantha", "#d4d4d8"],
-      ["Estefanía", "#22c55e"],
+      ["Gary", "var(--primary)"],
+      ["Rocky", "var(--accent)"],
+      ["Samantha", "var(--accent)"],
+      ["Estefanía", "var(--primary)"],
     ]);
   });
 

@@ -73,7 +73,7 @@ export const Dialog = ({
       ref={ref}
       onClose={onClose}
       onClick={handleBackdropClick}
-      className={`m-auto w-full max-w-md rounded-xl border border-border bg-background p-6 text-foreground shadow-lg backdrop:bg-black/50 ${className ?? ""}`.trim()}
+      className={`m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-lg border border-border bg-background p-6 text-foreground shadow-xl backdrop:bg-black/50 ${className ?? ""}`.trim()}
     >
       <div className="mb-4 flex items-center justify-between">
         <span className="text-lg font-bold">{title}</span>

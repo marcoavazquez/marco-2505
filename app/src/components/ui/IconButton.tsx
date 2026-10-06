@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 export type IconButtonProps = ComponentProps<"button">;
 
 const baseClassName =
-  "inline-flex items-center justify-center rounded-md p-2 text-foreground transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50 dark:hover:bg-zinc-800";
+  "inline-flex size-10 shrink-0 items-center justify-center rounded-full p-2 text-secondary transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50";
 
 export const IconButton = ({ children, className, ...buttonProps }: IconButtonProps) => {
   return (

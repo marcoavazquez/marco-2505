@@ -11,7 +11,7 @@ export default function FeaturesLayout({
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Cargando...</div>
+    return <div className="flex min-h-screen items-center justify-center text-sm text-secondary">Preparando la pista...</div>
   }
 
   if (!isAuthenticated) {
@@ -19,7 +19,7 @@ export default function FeaturesLayout({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen bg-canvas text-foreground">
       {children}
     </div>
   );

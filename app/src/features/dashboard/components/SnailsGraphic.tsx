@@ -16,8 +16,8 @@ import type { BarShapeProps } from "recharts";
 import { Card } from "@/components/ui";
 import { dailyRaces } from "@/lib/data/racing";
 
-const HIGHLIGHT_COLOR = "#22c55e";
-const MUTED_COLOR = "#d4d4d8";
+const HIGHLIGHT_COLOR = "var(--primary)";
+const MUTED_COLOR = "var(--accent)";
 
 interface SnailStanding {
   name: string;
@@ -65,11 +65,11 @@ const RaceTooltip = ({ active, payload }: TooltipContentProps) => {
   return (
     <div style={tooltipStyle} className="flex flex-col gap-1 px-3 py-2 text-sm">
       <span className="font-semibold">{name}</span>
-      <span className="text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+      <span className="text-xs tabular-nums text-secondary">
         {wins} {wins === 1 ? "victoria" : "victorias"}
       </span>
       {races.length > 0 && (
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+        <span className="text-xs text-secondary">
           {races.join(", ")}
         </span>
       )}

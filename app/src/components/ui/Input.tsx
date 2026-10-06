@@ -10,7 +10,7 @@ export interface InputProps extends ComponentProps<"input"> {
 }
 
 const baseClassName =
-  "w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-1 focus:ring-black disabled:opacity-50";
+  "min-h-11 w-full border border-border bg-background px-3 py-2 rounded-lg text-sm text-foreground outline-none transition-colors placeholder:text-secondary/70 focus:border-primary focus:ring-2 focus:ring-primary/20 aria-invalid:border-danger aria-invalid:focus:ring-danger/20 disabled:opacity-50";
 
 export function Input({
   label,
@@ -40,7 +40,7 @@ export function Input({
         <p
           id={helperTextId}
           className={`text-xs ${
-            hasError ? "text-danger" : "text-zinc-500 dark:text-zinc-400"
+            hasError ? "text-danger" : "text-secondary"
           }`}
         >
           {helperText}

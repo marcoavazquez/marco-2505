@@ -26,12 +26,12 @@ export const BalanceCard = ({ balance, onDeposit }: Props) => {
   const dismissSnackbar = useCallback(() => setSnackbar(null), []);
 
   return (
-    <div className="flex w-full flex-col gap-1 rounded-xl border border-border bg-background p-5 shadow-sm lg:w-64">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+    <div className="flex w-full shrink-0 flex-col gap-1 rounded-lg border border-border border-t-4 border-t-primary bg-background p-5 shadow-sm lg:w-64">
+      <p className="text-sm font-medium text-secondary">
         Saldo disponible
       </p>
-      <p className="text-3xl font-bold tabular-nums tracking-tight">
-        {balance?.amount}
+      <p className="text-3xl font-bold tabular-nums text-primary text-right">
+        $ {balance?.amount.toFixed(2) ?? "0.00"}
       </p>
 
       <Button

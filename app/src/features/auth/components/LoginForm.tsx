@@ -45,11 +45,12 @@ export function LoginForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending ? "Iniciando sesión..." : "Iniciar Sesión"}
+          {isPending ? "Iniciando sesión..." : "Iniciar sesión"}
         </Button>
 
         <div className="text-center text-sm">
-          <Link href="/register" className="text-blue-600 hover:underline">
+          <p className="mb-1 text-secondary">¿Aún no tienes una cuenta?</p>
+          <Link href="/register" className="rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary">
             Registrarse
           </Link>
         </div>

@@ -6,8 +6,8 @@ import type { PieSectorShapeProps } from "recharts";
 import { Card } from "@/components/ui";
 import { userBalance } from "@/lib/data/balance";
 
-const WON_COLOR = "#22c55e";
-const LOST_COLOR = "#ef4444";
+const WON_COLOR = "var(--primary)";
+const LOST_COLOR = "var(--accent)";
 
 const betsData = [
   { name: "Ganado", value: userBalance.won, color: WON_COLOR },
@@ -36,7 +36,7 @@ export const BetsGraphics = () => {
   return (
     <Card
       title="Balance de apuestas"
-      description={`${totalBets} Jugadas`}
+      description={`${totalBets} apuestas en total`}
       className="flex h-full flex-col gap-6"
     >
       <div className="relative h-72">
@@ -64,11 +64,11 @@ export const BetsGraphics = () => {
         </ResponsiveContainer>
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold tabular-nums tracking-tight text-green-600">
+          <span className="text-3xl font-bold tabular-nums text-primary">
             {toPercentage(userBalance.won)}%
           </span>
-          <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            ganado
+          <span className="text-xs font-medium text-secondary">
+            apuestas ganadas
           </span>
         </div>
       </div>
@@ -76,7 +76,7 @@ export const BetsGraphics = () => {
       <ul className="flex flex-col gap-2.5">
         {betsData.map(({ name, value, color }) => (
           <li key={name} className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2.5 text-zinc-600 dark:text-zinc-400">
+            <span className="flex items-center gap-2.5 text-secondary">
               <span
                 aria-hidden="true"
                 className="size-2.5 rounded-full ring-2 ring-background"

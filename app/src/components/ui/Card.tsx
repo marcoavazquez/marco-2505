@@ -28,7 +28,7 @@ const titleAlignClasses: Record<CardTitleAlign, string> = {
   center: "text-center",
 };
 
-const descriptionClassName = "text-sm text-zinc-500 dark:text-zinc-400";
+const descriptionClassName = "text-sm text-secondary";
 
 export function Card({
   children,
