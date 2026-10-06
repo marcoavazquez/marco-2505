@@ -14,7 +14,7 @@ export const Appbar = () => {
         <div className="flex items-center gap-3">
           <SnailAvatar className="size-10" />
           <div>
-            <p className="text-lg font-bold">Snail Racing</p>
+            <p className="text-lg font-bold">Snail</p>
             <p className="text-xs text-secondary">Carreras de caracoles</p>
           </div>
         </div>

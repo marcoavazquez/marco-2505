@@ -5,7 +5,7 @@ export type DepositFormState = FormState<DepositDto>;
 
 export type DepositResponseData = {
   id: string;
-  status_details: Record<string, string[]>;
+  status_details: Record<string, string[]> | { field: string; message: string }[];
   errors?: Record<string, string[]>;
   transaction_amount: number | null;
   date_created: string;

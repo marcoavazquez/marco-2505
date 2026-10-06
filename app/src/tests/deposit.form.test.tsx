@@ -322,6 +322,47 @@ describe("DepositForm", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the translated payment rejection instead of the technical status", async () => {
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
+    jsonResponse({ status: "rejected", status_details: { message: ["La tarjeta fue rechazada"] } }, 400);
+
+    const user = userEvent.setup();
+    render(<DepositForm />);
+    await fillForm(user);
+    await submit(user);
+
+    expect((await screen.findAllByText("La tarjeta fue rechazada"))[0]).toBeInTheDocument();
+    expect(screen.queryByText("rejected")).not.toBeInTheDocument();
+  });
+
+  it("shows backend validation messages next to their fields", async () => {
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
+    jsonResponse({ status: "rejected", status_details: [
+      { field: "cardNumber", message: "El número de tarjeta debe tener 16 dígitos" },
+    ] }, 400);
+
+    const user = userEvent.setup();
+    render(<DepositForm />);
+    await fillForm(user);
+    await submit(user);
+
+    expect(await screen.findByText("El número de tarjeta debe tener 16 dígitos")).toBeInTheDocument();
+    expect(screen.getByLabelText("Número de tarjeta")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("shows service unavailability in Spanish instead of the error status", async () => {
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
+    jsonResponse({ status: "error" }, 503);
+
+    const user = userEvent.setup();
+    render(<DepositForm />);
+    await fillForm(user);
+    await submit(user);
+
+    expect((await screen.findAllByText("El servicio de pagos no está disponible. Intenta de nuevo más tarde"))[0]).toBeInTheDocument();
+    expect(screen.queryByText("error")).not.toBeInTheDocument();
+  });
+
   it("shows a general error when the gateway is unreachable", async () => {
     vi.stubEnv("BACKEND_URL", "https://api.example.com");
     vi.mocked(fetch).mockRejectedValue(new Error("network down"));

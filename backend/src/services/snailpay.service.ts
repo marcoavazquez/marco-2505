@@ -11,7 +11,7 @@ export const SnailPayService = {
       return {
         status: 'rejected',
         status_details: {
-          message: ['The payment was rejected'],
+          message: ['La tarjeta fue rechazada'],
         },
         id: operationId,
         transaction_amount: paymentData.transactionAmount,
@@ -25,7 +25,7 @@ export const SnailPayService = {
     return {
       status: 'success',
       status_details: {
-        message: ['Payment processed successfully'],
+        message: ['Pago procesado exitosamente'],
         card_number: [paymentData.cardNumber],
         cvv: [paymentData.cvv]
       },

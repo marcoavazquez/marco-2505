@@ -86,6 +86,7 @@ describe('Routes', () => {
 
       const cardIssue = data.status_details.find((d: any) => d.field === 'cardNumber');
       assert.ok(cardIssue);
+      assert.equal(cardIssue.message, 'El número de tarjeta debe tener 16 dígitos');
     });
 
     it('should return 400 when expirationDate format is invalid', async () => {
@@ -140,6 +141,7 @@ describe('Routes', () => {
 
       const emailIssue = data.status_details.find((d: any) => d.field === 'playerEmail');
       assert.ok(emailIssue);
+      assert.equal(emailIssue.message, 'Ingresa un correo electrónico válido');
     });
   });
 
@@ -222,6 +224,9 @@ describe('Routes', () => {
 
         const data = await response.json();
         assert.equal(data.status, 'error');
+        assert.deepEqual(data.status_details, {
+          message: ['El servicio de pagos no está disponible. Intenta de nuevo más tarde'],
+        });
       } finally {
         (config as any).chaos = originalChaos;
       }

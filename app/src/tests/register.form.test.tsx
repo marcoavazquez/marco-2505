@@ -76,7 +76,7 @@ describe("RegisterForm", () => {
     await user.click(screen.getByRole("button", { name: "Registrarse" }));
 
     expect(
-      await screen.findByText("Invalid email address")
+      await screen.findByText("Ingresa un correo electrónico válido")
     ).toBeInTheDocument();
   });
 
@@ -98,7 +98,7 @@ describe("RegisterForm", () => {
 
     await user.click(screen.getByRole("button", { name: "Registrarse" }));
 
-    expect(await screen.findAllByText("Invalid email address")).toHaveLength(1);
+    expect(await screen.findAllByText("Ingresa un correo electrónico válido")).toHaveLength(1);
     expect(
       screen.getByText("El nombre debe tener al menos 3 caracteres")
     ).toBeInTheDocument();

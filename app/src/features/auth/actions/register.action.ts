@@ -16,7 +16,9 @@ export const registerAction = async (
     confirmPassword: form.get("confirmPassword")?.toString() ?? "",
   }
 
-  const { data: validatedData, error, success } = RegisterDto.safeParse(data);
+  const { data: validatedData, error, success } = RegisterDto.safeParse(data, {
+    error: z.locales.es().localeError,
+  });
 
   if (!success) {
     return {

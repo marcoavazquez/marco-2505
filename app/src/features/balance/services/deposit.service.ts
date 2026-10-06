@@ -10,6 +10,26 @@ const MISSING_API_URL = "La pasarela de pagos no está configurada";
 const NETWORK_ERROR = "No se pudo conectar con la pasarela de pagos";
 const UNEXPECTED_ERROR = "Ocurrió un error al procesar el depósito";
 const CARD_REJECTED = "La tarjeta fue rechazada";
+const SERVICE_UNAVAILABLE = "El servicio de pagos no está disponible. Intenta de nuevo más tarde";
+
+const paymentErrors = (
+  details: DepositResponseData["status_details"] | undefined
+): Record<string, string[]> => {
+  const errors: Record<string, string[]> = {};
+
+  if (Array.isArray(details)) {
+    for (const { field, message } of details) {
+      const key = field || "general";
+      (errors[key] ??= []).push(message);
+    }
+  } else if (details) {
+    for (const [field, messages] of Object.entries(details)) {
+      errors[field === "message" ? "general" : field] = messages;
+    }
+  }
+
+  return errors;
+};
 
 const failRequested = () => {
   const search = new URLSearchParams(window.location.search);
@@ -51,26 +71,18 @@ export const depositService = {
 
     const responseData = result.body;
 
-    if (result.status >= 400 && result.status < 500) {
-      const fieldErrors = responseData?.errors ?? responseData?.status_details;
-      const message =
-        responseData?.status ??
-        (result.status === 402 ? CARD_REJECTED : UNEXPECTED_ERROR);
+    if (!result.ok) {
+      const fieldErrors = paymentErrors(responseData?.errors ?? responseData?.status_details);
+      const fallback = result.status === 503
+        ? SERVICE_UNAVAILABLE
+        : result.status === 402 ? CARD_REJECTED : UNEXPECTED_ERROR;
+      const message = fieldErrors.general?.[0] ?? fallback;
 
       return {
         success: false,
         data: null,
         message,
-        errors: fieldErrors ?? { general: [message] },
-      };
-    }
-
-    if (!result.ok) {
-      return {
-        success: false,
-        data: null,
-        message: responseData?.status ?? UNEXPECTED_ERROR,
-        errors: { general: [UNEXPECTED_ERROR] },
+        errors: Object.keys(fieldErrors).length > 0 ? fieldErrors : { general: [message] },
       };
     }
 

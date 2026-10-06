@@ -18,7 +18,9 @@ export const depositAction = async (
     transactionAmount: Number(formData.get("amount")),
   }
 
-  const { data: validatedData, error, success } = DepositDto.safeParse(data);
+  const { data: validatedData, error, success } = DepositDto.safeParse(data, {
+    error: z.locales.es().localeError,
+  });
 
   if (!success) {
     return {
@@ -48,11 +50,11 @@ export const depositAction = async (
       errors: {},
       data,
     };
-  } catch (e: Error | unknown) {
+  } catch {
     return {
       ...prevState,
       success: false,
-      errors: { general: [e instanceof Error ? e.message : UNEXPECTED_ERROR] },
+      errors: { general: [UNEXPECTED_ERROR] },
       data,
     };
   }

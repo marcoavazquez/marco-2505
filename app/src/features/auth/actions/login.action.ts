@@ -8,7 +8,9 @@ export const loginAction = async (
   formData: FormData
 ): Promise<LoginFormState> => {
 
-  const { data, error, success } = LoginDto.safeParse(Object.fromEntries(formData.entries()));
+  const { data, error, success } = LoginDto.safeParse(Object.fromEntries(formData.entries()), {
+    error: z.locales.es().localeError,
+  });
 
   if (!success) {
     return {
@@ -35,12 +37,12 @@ export const loginAction = async (
       data: { email: "", password: "" }
     }
 
-  } catch (e: unknown) {
+  } catch {
     return {
       ...prevState,
       success: false,
       errors: {
-        email: [e instanceof Error ? e.message : "Ocurrió un error al iniciar sesión"]
+        email: ["Ocurrió un error al iniciar sesión"]
       }
     };
   }
