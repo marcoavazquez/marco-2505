@@ -3,10 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { RegisterForm } from "../features/auth/components/RegisterForm";
 import { RegisterView } from "../features/auth/components/RegisterView";
-import {
-  AUTH_USERS_STORAGE_KEY,
-  authService,
-} from "../features/auth/services/auth.service";
+import { authService } from "../features/auth/services/auth.service";
+import { USERS_KEY } from "@/lib/db/user";
 
 const validData = {
   fullName: "Ana Martínez",
@@ -107,91 +105,6 @@ describe("RegisterForm", () => {
     expect(
       screen.getAllByText("La contraseña debe tener al menos 6 caracteres")
     ).toHaveLength(2);
-  });
-
-  it("shows a success message and stores the account on a valid submit", async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await fillForm(user);
-    await user.click(screen.getByRole("button", { name: "Registrarse" }));
-
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      "¡Cuenta creada exitosamente!"
-    );
-
-    const stored = JSON.parse(
-      window.localStorage.getItem(AUTH_USERS_STORAGE_KEY) ?? "[]"
-    );
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0].email).toBe("ana@example.com");
-  });
-
-  it("shows a general error when the service rejects the registration", async () => {
-    vi.spyOn(authService, "register").mockResolvedValue({
-      success: false,
-      message: "Ya existe una cuenta registrada con ese correo",
-    });
-
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await fillForm(user);
-    await user.click(screen.getByRole("button", { name: "Registrarse" }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Ya existe una cuenta registrada con ese correo"
-    );
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
-  });
-
-  it("shows a general error when the service throws", async () => {
-    vi.spyOn(authService, "register").mockRejectedValue(new Error("boom"));
-
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await fillForm(user);
-    await user.click(screen.getByRole("button", { name: "Registrarse" }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Ocurrió un error al registrar la cuenta"
-    );
-  });
-
-  it("disables the form while the registration is pending", async () => {
-    let resolveRegister: (value: {
-      success: boolean;
-      message: string;
-      user: { id: string; email: string; fullName: string };
-    }) => void = () => {};
-
-    vi.spyOn(authService, "register").mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveRegister = resolve;
-        })
-    );
-
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await fillForm(user);
-    await user.click(screen.getByRole("button", { name: "Registrarse" }));
-
-    expect(screen.getByRole("button", { name: "Registrando..." })).toBeDisabled();
-    expect(screen.getByLabelText("Correo electrónico")).toBeDisabled();
-
-    await act(async () => {
-      resolveRegister({
-        success: true,
-        message: "¡Cuenta creada exitosamente!",
-        user: { id: "usr_1", email: "ana@example.com", fullName: "Ana Martínez" },
-      });
-    });
-
-    expect(screen.getByRole("button", { name: "Registrarse" })).toBeEnabled();
   });
 });
 

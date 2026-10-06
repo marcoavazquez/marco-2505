@@ -1,26 +1,52 @@
 import { Response } from "@/types";
 import { LoginDto, RegisterDto } from "../dtos";
-import { userRepositoty } from "@/lib/db";
-import { User } from "@/types/users";
+import { userRepositoty } from "@/lib/db/user";
+import { hashPassword, verifyPassword } from "@/lib/password";
+import { SESSION_KEY, authSession } from "@/lib/session";
+import { User, StoredUser } from "@/types/user";
 
 
-export const SESSION_KEY = "sisu.auth.session";
+export { SESSION_KEY };
+
+const INVALID_CREDENTIALS = "Correo o contraseña incorrectos";
 
 export const authService = {
   async login(data: LoginDto): Promise<Response<User>> {
 
-    const user = userRepositoty.find(data.email)
+    const stored = userRepositoty.find<StoredUser>(data.email)
 
-    if (!user) {
+    if (!stored) {
       return {
         success: false,
-        message: "Usuario no econtrado",
+        message: INVALID_CREDENTIALS,
         errors: {
-          email: ["Usuario no econtrado"]
+          email: [INVALID_CREDENTIALS]
         },
         data: null
       }
     }
+
+    const validPassword = await verifyPassword(data.password, stored.passwordHash)
+
+    if (!validPassword) {
+      return {
+        success: false,
+        message: INVALID_CREDENTIALS,
+        errors: {
+          password: [INVALID_CREDENTIALS]
+        },
+        data: null
+      }
+    }
+
+    const user: User = {
+      id: stored.id,
+      fullName: stored.fullName,
+      email: stored.email,
+      createdAt: stored.createdAt,
+    };
+
+    authSession.save(user)
 
     return {
       success: true,
@@ -30,7 +56,6 @@ export const authService = {
   },
 
   async register(data: RegisterDto): Promise<Response<User>> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
 
     const exists = userRepositoty.find(data.email)
 
@@ -45,17 +70,17 @@ export const authService = {
       }
     }
 
-    const newUser: User = {
+    const user: User = {
       id: "usr_" + Math.random().toString(36).substring(2, 9),
       email: data.email,
-      name: data.fullName,
+      fullName: data.fullName,
       createdAt: new Date().toISOString(),
     };
 
-    userRepositoty.save(newUser)
+    userRepositoty.save<StoredUser>({ ...user, passwordHash: await hashPassword(data.password) })
 
     return {
-      data: newUser,
+      data: user,
       success: true,
       message: "¡Cuenta creada exitosamente!",
     };

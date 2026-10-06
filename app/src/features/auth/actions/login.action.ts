@@ -29,9 +29,11 @@ export const loginAction = async (
     }
 
     return {
-      data,
+      ...prevState,
       success: true,
-    };
+      data: { email: "", password: "" }
+    }
+
   } catch {
     return {
       ...prevState,

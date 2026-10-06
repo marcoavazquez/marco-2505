@@ -2,15 +2,17 @@ import z from "zod";
 import { RegisterDto } from "../dtos";
 import { authService } from "../services";
 import { RegisterFormState } from "../types";
+import { redirect } from "next/navigation";
 
 export const registerAction = async (
   prevState: RegisterFormState,
   formData: FormData
 ): Promise<RegisterFormState> => {
-
   const { data, error, success } = RegisterDto.safeParse(
     Object.fromEntries(formData.entries())
   );
+
+  console.log(data)
 
   if (!success) {
     return {
@@ -31,11 +33,7 @@ export const registerAction = async (
         errors: response.errors,
       };
     }
-
-    return {
-      data,
-      success: true,
-    };
+    redirect('/dashboard')
   } catch {
     return {
       ...prevState,
