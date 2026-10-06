@@ -89,7 +89,7 @@ describe("DepositForm", () => {
   });
 
   it("sends the card data to the deposits endpoint of the api", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse(receipt);
 
     const user = userEvent.setup();
@@ -102,7 +102,7 @@ describe("DepositForm", () => {
 
     const [url, init] = vi.mocked(fetch).mock.calls[0];
 
-    expect(url).toBe("https://api.example.com/snailpay/pay");
+    expect(String(url)).toBe("https://api.example.com/snailpay/pay");
     expect(init?.method).toBe("POST");
     expect(JSON.parse(init?.body as string)).toEqual({
       cardNumber: "4242424242424242",
@@ -114,7 +114,7 @@ describe("DepositForm", () => {
   });
 
   it("adds the x-fail header when the page url has fail=true", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse(receipt);
     window.history.replaceState({}, "", "/dashboard?fail=true");
 
@@ -132,7 +132,7 @@ describe("DepositForm", () => {
   });
 
   it("does not add the x-fail header when the page url has no fail=true", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse(receipt);
 
     const user = userEvent.setup();
@@ -149,7 +149,7 @@ describe("DepositForm", () => {
   });
 
   it("notifies the parent with the accepted deposit and its message", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse(receipt);
     const onSuccess = vi.fn();
     const user = userEvent.setup();
@@ -173,7 +173,7 @@ describe("DepositForm", () => {
   });
 
   it("clears every input once the deposit is accepted", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse(receipt);
 
     const user = userEvent.setup();
@@ -189,7 +189,7 @@ describe("DepositForm", () => {
   });
 
   it("does not call the api when the card number is invalid", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
 
     const user = userEvent.setup();
     render(<DepositForm />);
@@ -204,7 +204,7 @@ describe("DepositForm", () => {
   });
 
   it("does not call the api when the amount is not positive", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
 
     const user = userEvent.setup();
     render(<DepositForm />);
@@ -219,7 +219,7 @@ describe("DepositForm", () => {
   });
 
   it("rejects an expired card before calling the api", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
 
     const user = userEvent.setup();
     render(<DepositForm />);
@@ -258,7 +258,7 @@ describe("DepositForm", () => {
   });
 
   it("shows the reason on the card when the gateway rejects it", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse({}, 402);
 
     const user = userEvent.setup();
@@ -273,7 +273,7 @@ describe("DepositForm", () => {
   });
 
   it("shows the gateway rejection in an inline alert while keeping the snackbar", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse({}, 402);
 
     const user = userEvent.setup();
@@ -293,7 +293,7 @@ describe("DepositForm", () => {
   });
 
   it("shows the field errors sent by the gateway", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     jsonResponse({ errors: { amount: ["El monto excede el límite diario"] } }, 402);
 
     const user = userEvent.setup();
@@ -308,7 +308,7 @@ describe("DepositForm", () => {
   });
 
   it("falls back to a general error when the gateway answers with no body", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     vi.mocked(fetch).mockResolvedValue(new Response("", { status: 500 }));
 
     const user = userEvent.setup();
@@ -323,7 +323,7 @@ describe("DepositForm", () => {
   });
 
   it("shows a general error when the gateway is unreachable", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     vi.mocked(fetch).mockRejectedValue(new Error("network down"));
 
     const user = userEvent.setup();
@@ -338,7 +338,7 @@ describe("DepositForm", () => {
   });
 
   it("shows a general error when the api is not configured", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "");
+    vi.stubEnv("BACKEND_URL", "");
 
     const user = userEvent.setup();
     render(<DepositForm />);

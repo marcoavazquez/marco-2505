@@ -16,6 +16,7 @@ if (config.env !== 'test') app.use(morgan('dev'));
 
 app.use(checkHealth);
 
+app.use('/api', routes);
 app.use('/', routes);
 
 app.use(notFound);

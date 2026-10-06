@@ -74,7 +74,7 @@ describe("BalanceCard", () => {
   });
 
   it("deposits the accepted amount and closes the dialog", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
 
     const onDeposit = vi.fn();
     const user = userEvent.setup();
@@ -91,7 +91,7 @@ describe("BalanceCard", () => {
   });
 
   it("keeps the dialog open when the deposit fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     mockGateway({}, 402);
 
     const onDeposit = vi.fn();
@@ -110,7 +110,7 @@ describe("BalanceCard", () => {
   it.each(["close button", "Escape", "backdrop"])(
     "clears deposit errors after closing with %s and reopening",
     async (closeMethod) => {
-      vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+      vi.stubEnv("BACKEND_URL", "https://api.example.com");
       mockGateway({}, 402);
 
       const user = userEvent.setup();
@@ -137,7 +137,7 @@ describe("BalanceCard", () => {
   );
 
   it("shows a success snackbar once the accepted deposit closes the dialog", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
 
     const user = userEvent.setup();
     render(<BalanceCard balance={balance} />);
@@ -155,7 +155,7 @@ describe("BalanceCard", () => {
   });
 
   it("shows an error snackbar while the dialog stays open", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+    vi.stubEnv("BACKEND_URL", "https://api.example.com");
     mockGateway({}, 402);
 
     const user = userEvent.setup();

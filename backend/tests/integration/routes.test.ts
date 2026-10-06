@@ -143,6 +143,37 @@ describe('Routes', () => {
     });
   });
 
+  describe('Public /api prefix', () => {
+    it('should process a valid payment at /api/snailpay/pay', async () => {
+      const response = await fetch(`${baseUrl}/api/snailpay/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validPaymentPayload)
+      });
+
+      assert.equal(response.status, 200);
+      const data = await response.json();
+
+      assert.equal(data.status, 'success');
+      assert.equal(data.player_id, validPaymentPayload.playerId);
+    });
+
+    it('should expose health at /api/health', async () => {
+      const response = await fetch(`${baseUrl}/api/health`);
+
+      assert.equal(response.status, 200);
+      const data = await response.json();
+
+      assert.equal(data.status, 'ok');
+    });
+
+    it('should still return 404 for unknown routes under /api', async () => {
+      const response = await fetch(`${baseUrl}/api/unknown`);
+
+      assert.equal(response.status, 404);
+    });
+  });
+
   describe('Route Not Found (404)', () => {
 
     it('should return 404 for undefined POST routes', async () => {

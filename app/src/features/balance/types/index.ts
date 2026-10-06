@@ -15,3 +15,14 @@ export type DepositResponseData = {
   status: string;
   authorization_code: string | null;
 }
+
+export type SnailPayResult =
+  | { configured: false }
+  | { configured: true; networkError: true }
+  | {
+      configured: true;
+      networkError: false;
+      ok: boolean;
+      status: number;
+      body: DepositResponseData | null;
+    };

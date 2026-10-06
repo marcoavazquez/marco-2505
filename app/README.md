@@ -12,19 +12,21 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Configuración
 
-La app se comunica con el backend de SnailPay a través de la variable de entorno `NEXT_PUBLIC_API_URL`. Definila en `.env.local`:
+La app se comunica con el backend de SnailPay a través del binding de servicio `BACKEND_URL`, declarado en el `vercel.json` de la raíz del repo. Vercel lo inyecta en las funciones del servicio `app` (en producción y con `vercel dev`). Para correr `pnpm dev` suelto, definalo en `.env.local`:
 
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
+BACKEND_URL=http://localhost:8000
 ```
 
 Si no está definida, los depósitos fallan con el mensaje *"La pasarela de pagos no está configurada"*.
+
+El binding solo resuelve en tiempo de ejecución dentro de funciones: no sirve en el build ni en middleware, por eso la llamada se hace desde la server action `src/features/balance/services/snailpay.server.ts`.
 
 ### Flujo de depósito
 
 1. Desde el dashboard, botón **"Depositar saldo"** → se abre el diálogo con el formulario (`src/features/balance/components/DepositForm.tsx`).
 2. El formulario se valida con Zod (`src/features/balance/dtos/deposit.dto.ts`).
-3. El servicio envía `POST ${NEXT_PUBLIC_API_URL}/snailpay/pay` con los datos de la tarjeta más `playerId` y `playerEmail` de la sesión (`src/features/balance/services/deposit.service.ts`).
+3. El servicio llama a la server action `snailPay` (`src/features/balance/services/snailpay.server.ts`), que ejecuta `POST ${BACKEND_URL}/snailpay/pay` **desde el servidor** con los datos de la tarjeta más `playerId` y `playerEmail` de la sesión (`src/features/balance/services/deposit.service.ts`).
 4. Si el backend responde `200`, se actualiza el saldo en `localStorage` y se registra el depósito.
 
 Para probarlo, usá la tarjeta válida del backend: `1234123412341234`, vencimiento `12/26`, CVV `543`.

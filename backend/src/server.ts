@@ -5,7 +5,7 @@ const server = app.listen(config.port, () => {
   console.log(`API escuchando en http://localhost:${config.port} [${config.env}]`);
 });
 
-function shutdown(signal) {
+function shutdown(signal: string) {
   console.log(`${signal} recibido, cerrando servidor...`);
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(1), 10_000).unref();

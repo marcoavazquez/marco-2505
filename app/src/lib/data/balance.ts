@@ -1,6 +1,6 @@
 import { Balance } from "../../types/balance";
 
-export const userBalance: Balance = {
+export const userBalance: Balance & { won: number; lost: number } = {
   userEmail: "[EMAIL_ADDRESS]",
   amount: 0,
   won: 17,

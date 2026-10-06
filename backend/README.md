@@ -12,6 +12,8 @@ pnpm dev
 
 Endpoint que procesa un depósito mediante la pasarela de pagos SnailPay. Corre en `http://localhost:8000`.
 
+En el deployment de Vercel (services) el backend también queda expuesto públicamente bajo el prefijo `/api` (rewrite `/api/(.*)` en el `vercel.json` de la raíz): `POST /api/snailpay/pay`, `GET /api/health`. La app lo llama internamente por el binding `BACKEND_URL` (sin prefijo).
+
 **Headers**
 
 | Header | Valor |
