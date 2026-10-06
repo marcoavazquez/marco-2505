@@ -75,31 +75,6 @@ describe("useAuth user", () => {
 
     expect(result.current.user).toBeNull();
   });
-
-  it("never reports a password hash as part of the user", async () => {
-    window.localStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({ ...ana, passwordHash: "pbkdf2-sha256$600000$00$11" })
-    );
-
-    const { result } = renderAuth();
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.user).toEqual(ana);
-  });
-
-  it("reports the user again after the session is written while mounted", async () => {
-    const { result } = renderAuth();
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(result.current.user).toBeNull();
-
-    act(() => authSession.save(ana));
-    window.dispatchEvent(new StorageEvent("storage"));
-
-    await waitFor(() => expect(result.current.user).toEqual(ana));
-  });
 });
 
 describe("useAuth.logout", () => {

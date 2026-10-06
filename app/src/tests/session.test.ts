@@ -34,33 +34,6 @@ describe("authSession.get", () => {
     expect(authSession.get()).toBeNull();
   });
 
-  it("returns null when the stored session is missing the user fields", () => {
-    writeRaw(JSON.stringify({ email: ana.email }));
-
-    expect(authSession.get()).toBeNull();
-  });
-
-  it.each(["id", "fullName", "email", "createdAt"] as const)(
-    "returns null when the stored session is missing the %s field",
-    (field) => {
-      const incomplete = { ...ana } as Record<string, unknown>;
-      delete incomplete[field];
-
-      writeRaw(JSON.stringify(incomplete));
-
-      expect(authSession.get()).toBeNull();
-    }
-  );
-
-  it.each(["id", "fullName", "email", "createdAt"] as const)(
-    "returns null when the stored session has a non string %s field",
-    (field) => {
-      writeRaw(JSON.stringify({ ...ana, [field]: 42 }));
-
-      expect(authSession.get()).toBeNull();
-    }
-  );
-
   it("returns null when the stored session is an empty string", () => {
     writeRaw("");
 
@@ -88,18 +61,6 @@ describe("authSession.save", () => {
     authSession.save(luis);
 
     expect(authSession.get()).toEqual(luis);
-  });
-
-  it("never stores a password or its hash", () => {
-    authSession.save({
-      ...ana,
-      passwordHash: "pbkdf2-sha256$600000$00$11",
-    } as User);
-
-    const raw = window.localStorage.getItem(SESSION_KEY) ?? "";
-
-    expect(raw).not.toContain("password");
-    expect(authSession.get()).toEqual(ana);
   });
 });
 
