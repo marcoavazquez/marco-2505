@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BalanceCard } from "../features/dashboard/components/BalanceCard";
@@ -57,13 +57,13 @@ describe("BalanceCard", () => {
     render(<BalanceCard balance={balance} />);
 
     expect(screen.getByText("Saldo disponible")).toBeInTheDocument();
-    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.getByText("$ 0.00")).toBeInTheDocument();
   });
 
   it("hides the deposit form until the dialog is opened", () => {
     render(<BalanceCard balance={balance} />);
 
-    expect(screen.queryByLabelText("Número de tarjeta")).not.toBeVisible();
+    expect(screen.queryByLabelText("Número de tarjeta")).not.toBeInTheDocument();
   });
 
   it("opens the deposit form in a dialog", async () => {
@@ -88,7 +88,7 @@ describe("BalanceCard", () => {
 
     await waitFor(() => expect(onDeposit).toHaveBeenCalledWith(500));
     await waitFor(() =>
-      expect(screen.queryByLabelText("Número de tarjeta")).not.toBeVisible()
+      expect(screen.queryByLabelText("Número de tarjeta")).not.toBeInTheDocument()
     );
   });
 
@@ -109,6 +109,35 @@ describe("BalanceCard", () => {
     expect(screen.getByLabelText("Número de tarjeta")).toBeVisible();
   });
 
+  it.each(["close button", "Escape", "backdrop"])(
+    "clears deposit errors after closing with %s and reopening",
+    async (closeMethod) => {
+      vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
+      mockGateway({}, 402);
+
+      const user = userEvent.setup();
+      render(<BalanceCard balance={balance} />);
+
+      const dialog = await openDialog(user);
+      await fillAndSubmit(user);
+      expect((await screen.findAllByText("La tarjeta fue rechazada"))[0]).toBeVisible();
+
+      if (closeMethod === "close button") {
+        await user.click(screen.getByRole("button", { name: "Cerrar diálogo" }));
+      } else if (closeMethod === "Escape") {
+        fireEvent(dialog, new Event("cancel", { cancelable: true }));
+      } else {
+        fireEvent.click(dialog);
+      }
+
+      await openDialog(user);
+
+      expect(screen.queryAllByText("La tarjeta fue rechazada")).toHaveLength(0);
+      expect(screen.queryAllByRole("alert")).toHaveLength(0);
+      expect(screen.getByLabelText("Número de tarjeta")).toHaveValue("");
+    },
+  );
+
   it("shows a success snackbar once the accepted deposit closes the dialog", async () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
 
@@ -124,7 +153,7 @@ describe("BalanceCard", () => {
     expect(
       within(snackbar).getByRole("button", { name: "Cerrar notificación" })
     ).toBeInTheDocument();
-    expect(screen.queryByLabelText("Número de tarjeta")).not.toBeVisible();
+    expect(screen.queryByLabelText("Número de tarjeta")).not.toBeInTheDocument();
   });
 
   it("shows an error snackbar while the dialog stays open", async () => {

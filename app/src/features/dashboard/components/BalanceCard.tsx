@@ -49,7 +49,7 @@ export const BalanceCard = ({ balance, onDeposit }: Props) => {
         hideFooter
         onClose={() => setIsDepositOpen(false)}
       >
-        <DepositForm onSuccess={handleDeposit} />
+        {isDepositOpen && <DepositForm onSuccess={handleDeposit} />}
       </Dialog>
 
       <Snackbar
