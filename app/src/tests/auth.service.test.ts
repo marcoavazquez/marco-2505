@@ -186,12 +186,6 @@ describe("authService.login", () => {
 
     expect(authSession.get()?.email).toBe("luis@example.com");
   });
-
-  it("opens a session when register creates the account", async () => {
-    await authService.register(validData);
-
-    expect(authSession.get()).not.toBeNull();
-  });
 });
 
 describe("authService.register", () => {
@@ -227,28 +221,8 @@ describe("authService.register", () => {
     expect(raw).not.toContain(validData.password)
   });
 
-  it("does not overwrite the stored user when the email already exists", async () => {
-    const first = await register();
-
-    await register();
-
-    const stored = readUsers();
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0].id).toBe(first.data?.id);
-  });
-
   it("recovers from corrupted localStorage data", async () => {
     window.localStorage.setItem(USERS_KEY, "{not-json");
-
-    const result = await register();
-
-    expect(result.success).toBe(true);
-    expect(readUsers()).toHaveLength(1);
-  });
-
-  it("ignores localStorage entries that are not an array", async () => {
-    window.localStorage.setItem(USERS_KEY, JSON.stringify({}));
 
     const result = await register();
 

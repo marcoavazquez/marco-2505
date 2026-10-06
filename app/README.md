@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentación
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Configuración
 
-## Learn More
+La app se comunica con el backend de SnailPay a través de la variable de entorno `NEXT_PUBLIC_API_URL`. Definila en `.env.local`:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Si no está definida, los depósitos fallan con el mensaje *"La pasarela de pagos no está configurada"*.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Flujo de depósito
 
-## Deploy on Vercel
+1. Desde el dashboard, botón **"Depositar saldo"** → se abre el diálogo con el formulario (`src/features/balance/components/DepositForm.tsx`).
+2. El formulario se valida con Zod (`src/features/balance/dtos/deposit.dto.ts`).
+3. El servicio envía `POST ${NEXT_PUBLIC_API_URL}/snailpay/pay` con los datos de la tarjeta más `playerId` y `playerEmail` de la sesión (`src/features/balance/services/deposit.service.ts`).
+4. Si el backend responde `200`, se actualiza el saldo en `localStorage` y se registra el depósito.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Para probarlo, usá la tarjeta válida del backend: `1234123412341234`, vencimiento `12/26`, CVV `543`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Cómo activar el modo de falla (fail mode)
+
+La app no tiene un interruptor en la UI: se activa con un **parámetro de query en la URL**. Cuando la página tiene `?fail=true`, cada petición de depósito agrega el header `x-fail: true`, que el backend interpreta devolviendo `503`.
+
+1. Abrí el dashboard con el parámetro en la URL:
+
+   ```
+   http://localhost:3000/dashboard?fail=true
+   ```
+
+2. Hacé un depósito normal desde el diálogo. El request saldrá con el header:
+
+   ```
+   x-fail: true
+   ```
+
+3. El backend responderá `503` y el formulario mostrará el error del depósito.
+
+Notas:
+
+- El valor debe ser exactamente `true` (`?fail=1` o `?fail=False` no activan el modo).
+- Se lee en el momento de enviar el formulario; no hay estado persistido. Sacá el parámetro de la URL para volver a la normalidad.
+- Comportamiento cubierto por los tests en `src/tests/deposit.form.test.tsx`.
+
+**Alternativa del backend:** también se puede forzar el fallo en **todas** las peticiones del servidor (sin header) seteando `CHAOS=true` en `backend/.env` y reiniciando la API. Ver la documentación de `backend/README.md`.
+

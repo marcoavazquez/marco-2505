@@ -5,10 +5,8 @@ import { BalanceCard } from "../features/dashboard/components/BalanceCard";
 import { Balance } from "@/types/balance";
 
 const balance: Balance = {
-  userEmail: "ana@example.com",
+  userEmail: "ana@snail.dev",
   amount: 0,
-  won: 0,
-  lost: 0,
 };
 
 const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {

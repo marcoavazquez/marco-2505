@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node --env-file=.env dist/server.js",
-    "test": "tsx --test tests/**/*.spec.ts",
+    "test": "tsx --test tests/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],

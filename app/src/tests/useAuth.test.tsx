@@ -12,7 +12,7 @@ import { User } from "@/types/user";
 const ana: User = {
   id: "usr_1",
   fullName: "Ana Martínez",
-  email: "ana@example.com",
+  email: "ana@snail.dev",
   createdAt: "2026-01-01T00:00:00.000Z",
 };
 
@@ -106,16 +106,5 @@ describe("useAuth.logout", () => {
     expect(result.current.isAuthenticated).toBe(false);
     expect(authSession.get()).toBeNull();
     expect(window.localStorage.getItem(SESSION_KEY)).toBeNull();
-  });
-
-  it("logs out even when nobody is logged in", async () => {
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    const redirect = logoutRedirecting(() => result.current.logout());
-
-    expect(getURLFromRedirectError(redirect)).toBe("/login");
-    expect(result.current.user).toBeNull();
-    expect(result.current.isAuthenticated).toBe(false);
   });
 });

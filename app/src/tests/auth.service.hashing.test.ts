@@ -6,7 +6,7 @@ const USERS_KEY = "snail.users";
 
 const validData = {
   fullName: "Ana Martínez",
-  email: "ana@example.com",
+  email: "ana@snail.dev",
   password: "secret123",
   confirmPassword: "secret123",
 };
@@ -60,7 +60,7 @@ describe("authService.register password hashing", () => {
     const response = await register();
 
     expect(response.success).toBe(true);
-    expect(response.data?.email).toBe("ana@example.com");
+    expect(response.data?.email).toBe("ana@snail.dev");
     expect(response.data).not.toHaveProperty("passwordHash");
   });
 

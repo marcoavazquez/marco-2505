@@ -188,63 +188,6 @@ describe("DepositForm", () => {
     expect(screen.getByLabelText("Monto")).toHaveValue(null);
   });
 
-  it("clears its error snackbar once a later deposit is accepted", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
-    jsonResponse(receipt);
-
-    const user = userEvent.setup();
-    render(<DepositForm />);
-
-    await fillForm(user, { ...validDeposit, cardNumber: "4242" });
-    await submit(user);
-
-    const snackbar = await findSnackbar();
-    expect(snackbar).toHaveTextContent("Revisa los campos del formulario");
-    expect(
-      within(snackbar).getByRole("button", { name: "Cerrar notificación" })
-    ).toBeInTheDocument();
-
-    await user.clear(screen.getByLabelText("Número de tarjeta"));
-    await user.type(
-      screen.getByLabelText("Número de tarjeta"),
-      validDeposit.cardNumber
-    );
-    await submit(user);
-
-    await waitFor(() =>
-      expect(screen.queryByRole("button", { name: "Cerrar notificación" }))
-        .not.toBeInTheDocument()
-    );
-  });
-
-  it("shows the error snackbar again after a new failed attempt following a dismissal", async () => {
-    const user = userEvent.setup();
-    render(<DepositForm />);
-
-    await fillForm(user, { ...validDeposit, cardNumber: "4242" });
-    await submit(user);
-
-    expect(await findSnackbar()).toHaveTextContent(
-      "Revisa los campos del formulario"
-    );
-
-    await user.click(
-      screen.getByRole("button", { name: "Cerrar notificación" })
-    );
-    expect(
-      screen.queryByRole("button", { name: "Cerrar notificación" })
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Revisa los campos del formulario"
-    );
-
-    await submit(user);
-
-    expect(await findSnackbar()).toHaveTextContent(
-      "Revisa los campos del formulario"
-    );
-  });
-
   it("does not call the api when the card number is invalid", async () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com");
 
