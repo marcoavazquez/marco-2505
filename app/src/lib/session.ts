@@ -12,9 +12,13 @@ export const authSession = {
     try {
       const parsed: unknown = JSON.parse(raw)
 
-      return parsed as User
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return null;
+      }
+
+      return parsed as User;
     } catch {
-      return null
+      return null;
     }
   },
 

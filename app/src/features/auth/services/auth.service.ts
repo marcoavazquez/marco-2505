@@ -4,6 +4,7 @@ import { userRepositoty } from "@/lib/db/user";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { SESSION_KEY, authSession } from "@/lib/session";
 import { User, StoredUser } from "@/types/user";
+import { userBalanceRepository } from "@/lib/db/balance";
 
 
 export { SESSION_KEY };
@@ -11,6 +12,7 @@ export { SESSION_KEY };
 const INVALID_CREDENTIALS = "Correo o contraseña incorrectos";
 
 export const authService = {
+
   async login(data: LoginDto): Promise<Response<User>> {
 
     const stored = userRepositoty.find<StoredUser>(data.email)
@@ -78,6 +80,8 @@ export const authService = {
     };
 
     userRepositoty.save<StoredUser>({ ...user, passwordHash: await hashPassword(data.password) })
+    authSession.save(user)
+    userBalanceRepository.createBalance(user.email)
 
     return {
       data: user,

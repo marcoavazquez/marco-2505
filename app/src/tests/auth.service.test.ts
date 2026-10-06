@@ -187,10 +187,10 @@ describe("authService.login", () => {
     expect(authSession.get()?.email).toBe("luis@example.com");
   });
 
-  it("does not open a session when register only creates the account", async () => {
+  it("opens a session when register creates the account", async () => {
     await authService.register(validData);
 
-    expect(authSession.get()).toBeNull();
+    expect(authSession.get()).not.toBeNull();
   });
 });
 

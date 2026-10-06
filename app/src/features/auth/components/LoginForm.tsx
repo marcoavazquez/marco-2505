@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 const initialState: LoginFormState = {
   data: { email: "", password: "" },
   success: false,
+  errors: {}
 };
 
 
@@ -22,9 +23,6 @@ export function LoginForm() {
 
   return (
     <>
-      <div className="font-mono">
-        {JSON.stringify(state)}
-      </div>
       <form action={formAction} className="space-y-4">
         <EmailInput
           id="email"

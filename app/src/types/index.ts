@@ -1,6 +1,7 @@
 export type FormState<T> = {
   data: T;
   success: boolean;
+  message?: string;
   errors?: Record<string, string[]>;
 }
 

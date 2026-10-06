@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { authSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -19,6 +20,7 @@ export const useAuth = () => {
   const logout = useCallback(() => {
     authSession.clear();
     setUser(null);
+    redirect('/login')
   }, []);
 
   return {

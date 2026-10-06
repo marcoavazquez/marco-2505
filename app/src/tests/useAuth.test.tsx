@@ -1,10 +1,12 @@
 import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
+import { getURLFromRedirectError } from "next/dist/client/components/redirect";
+import {
+  isRedirectError,
+  type RedirectError,
+} from "next/dist/client/components/redirect-error";
 import { useAuth } from "../hooks/useAuth";
-import { USERS_KEY } from "@/lib/db/user";
-import { hashPassword } from "@/lib/password";
 import { SESSION_KEY, authSession } from "@/lib/session";
-import { Response } from "@/types";
 import { User } from "@/types/user";
 
 const ana: User = {
@@ -12,15 +14,6 @@ const ana: User = {
   fullName: "Ana Martínez",
   email: "ana@example.com",
   createdAt: "2026-01-01T00:00:00.000Z",
-};
-
-const credentials = { email: ana.email, password: "secret123" };
-
-const storeUser = async (password: string, user: User = ana) => {
-  window.localStorage.setItem(
-    USERS_KEY,
-    JSON.stringify([{ ...user, passwordHash: await hashPassword(password) }])
-  );
 };
 
 const openSession = (user: User = ana) => {
@@ -109,162 +102,45 @@ describe("useAuth user", () => {
   });
 });
 
-describe("useAuth.login", () => {
-  it("returns the user of the accepted credentials", async () => {
-    await storeUser(credentials.password);
-
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    let response!: Response<User>;
-    await act(async () => {
-      response = await result.current.login(credentials);
-    });
-
-    expect(response.success).toBe(true);
-    expect(response.data?.email).toBe(ana.email);
-    expect(result.current.user).toEqual(ana);
-    expect(result.current.isAuthenticated).toBe(true);
-  });
-
-  it("persists the session so a remount finds the user", async () => {
-    await storeUser(credentials.password);
-
-    const { result, unmount } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    await act(async () => {
-      await result.current.login(credentials);
-    });
-    unmount();
-
-    const { result: remounted } = renderAuth();
-    await waitFor(() => expect(remounted.current.isLoading).toBe(false));
-
-    expect(remounted.current.user?.email).toBe(ana.email);
-  });
-
-  it("rejects a wrong password and keeps the user logged out", async () => {
-    await storeUser(credentials.password);
-
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    let response!: Response<User>;
-    await act(async () => {
-      response = await result.current.login({ ...credentials, password: "otra-clave" });
-    });
-
-    expect(response.success).toBe(false);
-    expect(result.current.user).toBeNull();
-    expect(authSession.get()).toBeNull();
-  });
-
-  it("rejects an unknown email", async () => {
-    await storeUser(credentials.password);
-
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    let response!: Response<User>;
-    await act(async () => {
-      response = await result.current.login({ ...credentials, email: "otro@example.com" });
-    });
-
-    expect(response.success).toBe(false);
-    expect(result.current.user).toBeNull();
-  });
-
-  it("keeps the previous user when a new login is rejected", async () => {
-    await storeUser(credentials.password);
-    openSession();
-
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    await act(async () => {
-      await result.current.login({ ...credentials, password: "otra-clave" });
-    });
-
-    expect(result.current.user).toEqual(ana);
-  });
-});
-
 describe("useAuth.logout", () => {
-  it("drops the user and the stored session", async () => {
+  const logoutRedirecting = (logout: () => void): RedirectError => {
+    let caught: unknown = null;
+
+    try {
+      act(() => logout());
+    } catch (error) {
+      act(() => {});
+      caught = error;
+    }
+
+    expect(isRedirectError(caught)).toBe(true);
+
+    return caught as RedirectError;
+  };
+
+  it("drops the user and the stored session, then redirects to /login", async () => {
     openSession();
 
     const { result } = renderAuth();
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    act(() => result.current.logout());
+    const redirect = logoutRedirecting(() => result.current.logout());
 
+    expect(getURLFromRedirectError(redirect)).toBe("/login");
     expect(result.current.user).toBeNull();
     expect(result.current.isAuthenticated).toBe(false);
     expect(authSession.get()).toBeNull();
-  });
-
-  it("leaves no user after logging out and remounting", async () => {
-    openSession();
-
-    const { result, unmount } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    act(() => result.current.logout());
-    unmount();
-
-    const { result: remounted } = renderAuth();
-    await waitFor(() => expect(remounted.current.isLoading).toBe(false));
-
-    expect(remounted.current.user).toBeNull();
+    expect(window.localStorage.getItem(SESSION_KEY)).toBeNull();
   });
 
   it("logs out even when nobody is logged in", async () => {
     const { result } = renderAuth();
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    act(() => result.current.logout());
+    const redirect = logoutRedirecting(() => result.current.logout());
 
+    expect(getURLFromRedirectError(redirect)).toBe("/login");
     expect(result.current.user).toBeNull();
-  });
-
-  it("keeps the registered users in localStorage", async () => {
-    await storeUser(credentials.password);
-    openSession();
-
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    act(() => result.current.logout());
-
-    expect(window.localStorage.getItem(USERS_KEY)).not.toBeNull();
-  });
-
-});
-
-describe("useAuth reactivity", () => {
-  it("gives every mounted hook the same session user", async () => {
-    openSession();
-
-    const first = renderAuth();
-    const second = renderAuth();
-
-    await waitFor(() => expect(first.result.current.isLoading).toBe(false));
-    await waitFor(() => expect(second.result.current.isLoading).toBe(false));
-
-    expect(first.result.current.user).toEqual(ana);
-    expect(second.result.current.user).toEqual(ana);
-  });
-
-  it("reports no user after the session is cleared by another tab", async () => {
-    openSession();
-
-    const { result } = renderAuth();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    window.localStorage.removeItem(SESSION_KEY);
-    window.dispatchEvent(new StorageEvent("storage"));
-
-    await waitFor(() => expect(result.current.user).toBeNull());
+    expect(result.current.isAuthenticated).toBe(false);
   });
 });

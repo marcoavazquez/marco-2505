@@ -25,6 +25,7 @@ export const loginAction = async (
       return {
         ...prevState,
         success: false,
+        errors: response.errors,
       };
     }
 
@@ -34,10 +35,13 @@ export const loginAction = async (
       data: { email: "", password: "" }
     }
 
-  } catch {
+  } catch (e: unknown) {
     return {
       ...prevState,
       success: false,
+      errors: {
+        email: [e instanceof Error ? e.message : "Ocurrió un error al iniciar sesión"]
+      }
     };
   }
 }

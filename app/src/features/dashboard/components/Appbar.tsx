@@ -1,25 +1,23 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/IconButton";
+import { LogoutIcon } from "@/components/icons/LogoutIcon";
 import { useAuth } from "@/hooks/useAuth";
 
-interface Props {
-
-}
-
 export const Appbar = () => {
-  const { logout, user } = useAuth()
+  const { logout } = useAuth();
 
   return (
-    <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200">
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold">Dashboard</h1>
-      </div>
+    <header className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
+      <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
 
-      <div className="flex items-center gap-4">
-        <span className="font-bold text-xl text-green-600">10,001.32 MXN</span>
-        <Button onClick={() => logout()}>Cerrar Sesión</Button>
-      </div>
-    </div>
+      <IconButton
+        onClick={() => logout()}
+        aria-label="Cerrar sesión"
+        className="text-zinc-500 hover:bg-zinc-100 hover:text-foreground dark:text-zinc-400 dark:hover:bg-zinc-800"
+      >
+        <LogoutIcon className="size-5" />
+      </IconButton>
+    </header>
   );
 };
